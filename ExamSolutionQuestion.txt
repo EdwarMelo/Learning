@@ -1,0 +1,16 @@
+EXAMEN DE PYTHON
+------------------
+Pregunta 1 : Genere los 1000 primeros elementos de la sucesion de Golomb : https://en.wikipedia.org/wiki/Golomb_sequence .De como respuesta la resta de los dos ultimos elementos generados.
+Pregunta 2 : De aquellos numeros menores a 5000 cuya suma de cifras sea 16. De como respuesta la suma del primero y el ultimo
+#
+https://github.com/robintux/Datasets4StackOverFlowQuestions/blob/master/COVID19_clinical_trials.csv
+Pregunta 3 : Cuantas observaciones se obtienen en total al filtrar  la variable "Conditions" por los valores "covid19" y "Covid19".
+Pregunta 4 : Cual es el codigo de python que usuaria para calcular el numero de observaciones del dataframe df
+Pregunta 5 : Si consideramos la variable Gender, cual es el numero de mujeres (Valor "Female" en Gender) y hombres (Valor "Male" en Gender). De como respuesta el total de las  observaciones bajo esta condicion.
+#
+https://github.com/robintux/Datasets4StackOverFlowQuestions/blob/master/flights_Clase11_ML_EPC.csv
+Pregunta 6 : Calcular el numero de vuelos cancelados (Variable CANCELLED) por dia de semana (Variable WEEKDAY). Recuerde que los dias de la semana estan etiquetados con 1,2,3,4,5,6 y 7
+Pregunta 7 : Para cada aeropuerto de origen (ORG_AIR) y aeropuerto de destino(DEST_AIR), encontrar el numero total de vuelos desviados (DIVERTED).Calcule el numero de vuelos desviados que partieron del aeropuerto "LAX" y llegaron al aeropuerto "KOA"
+Pregunta 8 : La variable DEST_AIR almacena los nombres de los aeropuestos de destino. De como respuesta la cantidad de aeropuertos de destino
+Pregunta 9 : Calcule el numero total de elementos faltantes en el dataframe
+
