@@ -90,9 +90,3 @@ data2.isna().sum().sum()
 help(data1.Conditions.unique)
 dir(lista)
 type()
-
-# %%
-Notas = "Si no les sale , más tarde se subirá la nota."
-while Notas != "Ya estan sus notas":
-    print("Cómo se ve la nota!!!")
-
