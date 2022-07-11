@@ -8,37 +8,37 @@ Created on Sun Jul 10 19:09:57 2022
 
 #%%
 
-def findGolomb(n):
-    # base case
-    if (n == 1):
-        return 1
-    # Recursive Step
-    return 1 + findGolomb(n -
-    findGolomb(findGolomb(n - 1)))
+# def findGolomb(n):
+#     # base case
+#     if (n == 1):
+#         return 1
+#     # Recursive Step
+#     return 1 + findGolomb(n -
+#     findGolomb(findGolomb(n - 1)))
 # Print the first n term
 # of Golomb Sequence
-def printGolomb(n):
-    # Finding first n terms of
-    # Golomb Sequence.
-    for i in range(1, n + 1):
-        print(findGolomb(i))
-
-printGolomb(1001)
- 
-sumDigit, extNum = 0, 0
+# def printGolomb(n):
+#     # Finding first n terms of
+#     # Golomb Sequence.
+#     for i in range(1, n + 1):
+#         print(findGolomb(i))
+# 
+# printGolomb(1001)
+#  
+# sumDigit, extNum = 0, 0
 # numEntero = 123
-lista = [x for x in range(5000)]
-nums = []
-for numEntero in lista:
-    sumDigit, extNum = 0, 0
-    
-    if numEntero != 0:
-        extNum = numEntero % 10
-        numEntero //= 10
-        sumDigit += extNum
-        nums.append(extNum)
-        # if sumDigit == 16:
-        # print("La suma de los digitos es: {}".format(sumDigit))
+# lista = [x for x in range(5000)]
+# nums = []
+# for numEntero in lista:
+#     sumDigit, extNum = 0, 0
+#     
+#     if numEntero != 0:
+#         extNum = numEntero % 10
+#         numEntero //= 10
+#         sumDigit += extNum
+#         nums.append(extNum)
+#         # if sumDigit == 16:
+#         # print("La suma de los digitos es: {}".format(sumDigit))
 
 # %% 
 # =============================================================================
@@ -87,6 +87,8 @@ data2.DEST_AIR.unique().shape[0]
 data2.isna().sum().sum()
 # Pregunta 9 : 2869
 
+
 help(data1.Conditions.unique)
 dir(lista)
 type()
+
