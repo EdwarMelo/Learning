@@ -1,2 +1,2 @@
 # Learning
-A place where I share some scripts
+A place where I will share some scripts
