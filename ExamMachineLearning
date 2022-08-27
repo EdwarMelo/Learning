@@ -1,0 +1,284 @@
+# =============================================================================
+# Evaluacion Final Nivel II : Machine Learning con Python
+# =============================================================================
+# Alumno:
+    # Edwar Melo Huallpartupa
+
+# %% Carga de Modulos
+
+import numpy as np
+import pandas as pd 
+import matplotlib.pyplot as plt 
+import seaborn as sns
+import missingno as msno
+
+# Sklearn
+from sklearn.model_selection import train_test_split
+# Modulos de Regresion Lineal y Logistica
+from sklearn.linear_model import LinearRegression, LogisticRegression
+# Modulos de arbol de decision
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+# Bosques Aleatorios en sklearn
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+# Cargamos la clase GridSearch 
+from sklearn.model_selection import GridSearchCV
+# Metricas
+from sklearn import metrics
+
+import os 
+os.chdir("/media/edwar/Archivos/Cursos/PYTHON/Machine Learning EPC/INTERMEDIO/Examen")
+
+# %% Pregunta 1
+
+# Carga de Datos
+rp = pd.read_excel("Reactiva_Peru_Lista_de_empresas_al_30102020.xlsx", skiprows=2)
+
+rp.drop(["Unnamed: 0","NOMBRE DE 2DA. ENTIDAD OTORGANTE DEL CRÉDITO*"], 
+        axis = 1, inplace=True)
+rp.dropna(inplace=True)
+
+# Diagrama de barras de la distribucion del fondo en los distintos rubros
+x = rp["SECTOR ECONÓMICO"].value_counts().index.values
+y = rp["SECTOR ECONÓMICO"].value_counts()
+plt.figure(figsize = (16,9))
+sns.barplot(x,y,data=rp)
+plt.xticks(rotation=90)
+plt.title("Sectores Economicos donde se distribuyo Reactiva Perú")
+plt.tight_layout()
+plt.show()
+# 
+plt.figure(figsize = (16,9))
+sns.barplot(x="SECTOR ECONÓMICO", y="MONTO PRÉSTAMO (S/)",data=rp)
+plt.xticks(rotation=90)
+plt.title("Sectores Economicos donde se distribuyo Reactiva Perú")
+plt.tight_layout()
+plt.show()
+#
+
+# Diagrama de barras del monto prestado por cada entidad otorgante
+plt.figure(figsize = (16,9))
+sns.barplot(x="NOMBRE DE ENTIDAD OTORGANTE DEL CRÉDITO", y="MONTO PRÉSTAMO (S/)",data=rp)
+plt.xticks(rotation=90)
+plt.title("Monto prestado por entidad otorgante - Reactiva Perú")
+plt.tight_layout()
+plt.show()
+
+# Diagrama de barras del monto prestado por cada departamento
+plt.figure(figsize = (16,9))
+sns.barplot(x="DEPARTAMENTO", y="MONTO PRÉSTAMO (S/)",data=rp)
+plt.xticks(rotation=90)
+plt.title("Monto prestado por departamento - Reactiva Perú")
+plt.tight_layout()
+plt.show()
+
+# Histograma del Monto Coberturado para cada Departamento
+for y in (rp["DEPARTAMENTO"].unique()):
+    plt.figure(figsize = (16,9))
+    plt.hist(rp.loc[rp["DEPARTAMENTO"]==y]["MONTO COBERTURADO (S/)"])
+    plt.title(y)
+    plt.show()
+
+# %% Pregunta 2
+
+# Carga de Datos
+vn = pd.read_csv("DatosViernesNegro.csv")
+
+# Diagrama de barras de como se diatribuye la variable Gender
+x = vn["Gender"].value_counts().index.values
+y = vn["Gender"].value_counts()
+plt.figure(figsize = (16,9))
+sns.barplot(x,y,data=vn)
+plt.title("Distribucion de la Variable Gender")
+plt.tight_layout()
+plt.show()
+
+# Agregar la variable Age_Cod considerando el cuadro dado
+vn["Age_Cod"] = vn["Age"]
+cod={"0-17":"Stage1","18-25":"Stage2","26-35":"Stage3","36-45":"Stage4",
+     "46-50":"Stage5","51-55":"Stage6","55+":"Stage7"}
+for a in list(vn.Age.unique()):
+    vn["Age_Cod"].replace(to_replace=cod, inplace=True)
+# Generacion de diagrama de barras con variable recien creada
+m = vn["Age_Cod"].value_counts().index.values
+n = vn["Age_Cod"].value_counts()
+plt.figure(figsize = (16,9))
+sns.barplot(m,n,data=vn)
+plt.title("Distribucion de la Variable Age_Cod")
+plt.tight_layout()
+plt.show()
+
+# Eliminacion de variables con mas de 2022 valores faltantes
+vn.isna().sum()
+vn.isnull().sum()
+# Las variables a eliminar son "Product_Category_2" y "Product_Category_3"
+vn.drop(["Product_Category_2","Product_Category_3"], 
+        axis = 1, inplace=True)
+
+# Eliminacion de las variables "User_ID" y "Product_ID"
+vn.drop(["User_ID","Product_ID"], 
+        axis = 1, inplace=True)
+
+# Histograma de la Variable Purchase por Sexo (Gender)
+for h in vn["Gender"].unique():
+    plt.figure(figsize = (16,9))
+    plt.hist(vn.loc[vn["Gender"]==h]["Purchase"])
+    plt.title("Genero " + h)
+    plt.show()
+
+# Histograma de la Variable Purchase por Codigo Etario (Age_Cod)
+for i in vn["Age_Cod"].unique():
+    plt.figure(figsize = (16,9))
+    plt.hist(vn.loc[vn["Age_Cod"]==i]["Purchase"])
+    plt.title("Codigo Etario - " + i)
+    plt.show()
+
+# Modelos de Clasificacion considerando la variable Sexo (Gender)
+# En la variable Gender se reemplaza
+gen={"F":0,"M":1}
+for b in vn.Gender:
+    vn.Gender.replace(to_replace=gen, inplace=True)
+# Transformemos las variables cualitativas a variables de tipo str
+vn.Occupation = vn.Occupation.apply(str)
+vn.Marital_Status = vn.Marital_Status.apply(str)
+vn.Product_Category_1 = vn.Product_Category_1.apply(str)
+# Realizamos un hot-encoding sobre todas las columnas de tipo object
+for col in vn.dtypes[vn.dtypes == "object"].index :
+    # Borrar la columna de tipo object
+    Col4Dummy = vn.pop(col)
+    # Agregar las dummies a mi dataframe
+    vn = pd.concat([vn, pd.get_dummies(Col4Dummy, prefix = col)], axis = 1)
+vn.to_csv("VNModel.csv")
+### DecisionTreeClassifier (DTC)
+vn = pd.read_csv("VNModel.csv")
+# Separemos las variables en independientes y dependientes
+y = vn.pop("Gender")
+x = vn
+# Particion en train y test
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+## Construccion del Modelo
+# Instanciacion del Modelo
+ModelDTC2 = DecisionTreeClassifier()
+# Ajuste del Modelo
+ModelDTC2.fit(x_train, y_train)
+# Calculo de score (R2) para la data de prueba
+R2_ModelDTC2=ModelDTC2.score(x_test, y_test)
+print("R2 - Score : ModelDTC2") 
+print(R2_ModelDTC2)
+## EvaluacDTC2ion del modelo 
+# Pronosticos
+y_ModelDTC2=ModelDTC2.predict(x_test)
+# Matriz de confusion
+MC_ModelDTC2=metrics.confusion_matrix(y_test, y_ModelDTC2)
+print("Matriz de Confusion : ModelDTC2") 
+print(MC_ModelDTC2)
+# AUC 
+FPRate, TPRate, Thresholds = metrics.roc_curve(y_test, y_ModelDTC2)
+# Calculo del AUC
+AUC_ModelDTC2 = metrics.auc(FPRate, TPRate)
+print("AUC : ModelDTC2") 
+print(AUC_ModelDTC2)
+### RandomForestClassifier (RFC)
+vn = pd.read_csv("VNModel.csv")
+# Separemos las variables en independientes y dependientes
+y = vn.Gender
+x = vn.drop(["Gender"], axis = 1)
+# Particion en train y test
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+## Construccion del Modelo
+# Instanciacion del Modelo
+ModelRFC2 = RandomForestClassifier()
+# Ajuste del Modelo
+ModelRFC2.fit(x_train, y_train)
+# Calculo de score (R2) para la data de prueba
+R2_ModelRFC2=ModelRFC2.score(x_test, y_test)
+print("R2 - Score : ModelRFC2") 
+print(R2_ModelRFC2)
+## Evaluacion del modelo 
+# Pronosticos
+y_ModelRFC2=ModelRFC2.predict(x_test)
+# Matriz de confusion
+MC_ModelRFC2=metrics.confusion_matrix(y_test, y_ModelRFC2)
+print("Matriz de Confusion : ModelRFC2") 
+print(MC_ModelRFC2)
+# AUC 
+FPRate, TPRate, Thresholds = metrics.roc_curve(y_test, y_ModelRFC2)
+# Calculo del AUC
+AUC_ModelRFC2 = metrics.auc(FPRate, TPRate)
+print("AUC : ModelRFC2") 
+print(AUC_ModelRFC2)
+
+# Modelos de Regresion considerando la variable Purchase
+### LinearRegression (LinR)
+vn = pd.read_csv("VNModel.csv")
+# Separemos las variables en independientes y dependientes
+y = vn.Purchase
+x = vn.drop(["Purchase"], axis = 1)
+# Particion en train y test
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+## Construccion del Modelo
+# Instanciacion del Modelo
+ModelLinR2 = LinearRegression()
+# Ajuste del Modelo
+ModelLinR2.fit(x_train, y_train)
+# Calculo de score (R2) para la data de prueba
+R2_ModelLinR2=ModelLinR2.score(x_test, y_test)
+print("R2 - Score : ModelLinR2") 
+print(R2_ModelLinR2)
+## Evaluacion del modelo 
+# Pronosticos
+y_ModelLinR2=ModelLinR2.predict(x_test)
+# MAPE
+MAPE_ModelLinR2=metrics.mean_absolute_percentage_error(y_test, y_ModelLinR2)
+print("MAPE : ModelLinR2") 
+print(MAPE_ModelLinR2)
+# Coeficientes de las variables independientes
+print("Coeficientes : ModelLinR2")
+print(ModelLinR2.coef_)
+print("Intercepto : ModelLinR2")
+print(ModelLinR2.intercept_)
+### DecisionTreeRegressor (DTR)
+vn = pd.read_csv("VNModel.csv")
+# Separemos las variables en independientes y dependientes
+y = vn.pop("Purchase")
+x = vn
+# Particion en train y test
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+## Construccion del Modelo
+# Instanciacion del Modelo
+ModelDTR2 = DecisionTreeRegressor()
+# Ajuste del Modelo
+ModelDTR2.fit(x_train, y_train)
+# Calculo de score (R2) para la data de prueba
+R2_ModelDTR2=ModelDTR2.score(x_test, y_test)
+print("R2 - Score : ModelLinR2") 
+print(R2_ModelDTR2)
+## Evaluacion del modelo 
+# Pronosticos
+y_ModelDTR2=ModelDTR2.predict(x_test)
+# MAPE
+MAPE_ModelDTR2=metrics.mean_absolute_percentage_error(y_test, y_ModelDTR2)
+print("MAPE : ModelDTR2") 
+print(MAPE_ModelDTR2)
+### RandomForestRegressor (RFR)
+vn = pd.read_csv("VNModel.csv")
+# Separemos las variables en independientes y dependientes
+y = vn.Gender
+x = vn.drop(["Gender"], axis = 1)
+# Particion en train y test
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.2)
+## Construccion del Modelo
+# Instanciacion del Modelo
+ModelRFR2 = RandomForestRegressor()
+# Ajuste del Modelo
+ModelRFR2.fit(x_train, y_train)
+# Calculo de score (R2) para la data de prueba
+R2_ModelRFR2=ModelRFR2.score(x_test, y_test)
+print("R2 - Score : ModelRFR2") 
+print(R2_ModelRFR2)
+## Evaluacion del modelo 
+# Pronosticos
+y_ModelRFR2=ModelRFR2.predict(x_test)
+# MAPE
+MAPE_ModelRFR2=metrics.mean_absolute_percentage_error(y_test, y_ModelRFR2)
+print("MAPE : ModelLinR2") 
+print(MAPE_ModelRFR2)
